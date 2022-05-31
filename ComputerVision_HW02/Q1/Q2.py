@@ -102,35 +102,11 @@ def find_all_homography_mats(frames):
     homography_mats[90] = np.matmul(find_homography(frames[90], frames[270]), homography_mats[270])
     homography_mats[810] = np.matmul(find_homography(frames[810], frames[630]), homography_mats[630])
 
-    # for i in range(-450, 450):
-    #     index = i + 450
-    #     ref = index - ((i + 90) % 180 - 90)
-    #     h = find_homography(frames[index], frames[ref])
-    #     homography_mats[index] = np.matmul(h, homography_mats[ref])
-
-    for i in range(0, 90):
-        h = find_homography(frames[i], frames[90])
-        homography_mats[i] = np.matmul(h, homography_mats[90])
-
-    for i in range(91, 270):
-        h = find_homography(frames[i], frames[270])
-        homography_mats[i] = np.matmul(h, homography_mats[270])
-
-    for i in range(270, 450):
-        h = find_homography(frames[i], frames[450])
-        homography_mats[i] = np.matmul(h, homography_mats[450])
-
-    for i in range(450, 630):
-        h = find_homography(frames[i], frames[450])
-        homography_mats[i] = np.matmul(h, homography_mats[450])
-
-    for i in range(630, 810):
-        h = find_homography(frames[i], frames[630])
-        homography_mats[i] = np.matmul(h, homography_mats[630])
-
-    for i in range(810, 900):
-        h = find_homography(frames[i], frames[810])
-        homography_mats[i] = np.matmul(h, homography_mats[810])
+    for i in range(-450, 450):
+        index = i + 450
+        ref = index - ((i + 90) % 180 - 90)
+        h = find_homography(frames[index], frames[ref])
+        homography_mats[index] = np.matmul(h, homography_mats[ref])
 
     return homography_mats
 
@@ -260,9 +236,7 @@ def section_two(main_frames):
 def section_three(frames, homography_mats):
     h, w, _ = frames[0].shape
     size, m = find_frame(homography_mats, h, w)
-    print(size, m)
     vw = cv2.VideoWriter('res05-reference-plane.mp4', cv2.VideoWriter_fourcc(*'MP4V'), 30, size)
-    print(homography_mats[0])
 
     for i in range(900):
         vw.write(np.uint8(warp_perspective(frames[i], np.matmul(m, homography_mats[i]), size) * 255))
@@ -279,10 +253,10 @@ def section_four():
     hws = [(0, frame_h), (0, frame_h), (0, frame_h),
            (frame_h, 2 * frame_h), (frame_h, 2 * frame_h), (frame_h, 2 * frame_h),
            (2 * frame_h, 3 * frame_h), (2 * frame_h, 3 * frame_h), (2 * frame_h, 3 * frame_h)]
-    for i in range(5, 6):
+    for i in range(9):
         m = create_one_section_of_panorama(i, hws[i], wws[i])
         panoramas.append(m)
-        cv2.imwrite('part' + str(i) + '.jpg', m.astype('uint8'))
+        cv2.imwrite('part' + str(i) + '.jpg', m)
 
     # for i in range(9):
     #     panoramas.append(cv2.imread('part' + str(i) + '.jpg'))
@@ -318,9 +292,7 @@ def create_one_section_of_panorama(part, hw, ww):
         else:
             ret, frame = vc.read()
             frame = frame.astype('uint8')
-            # frame = frame.astype(np.float16)
             frames.append(frame[hw[0]:hw[1], ww[0]:ww[1], :])
-            # frames.append(np.ma.array(frame, mask=(frame == 0)))
             current_frame += 1
             del frame
         if end_frame_num <= current_frame:
@@ -329,7 +301,6 @@ def create_one_section_of_panorama(part, hw, ww):
     print(current_frame)
     frames = np.ma.masked_equal(frames, 0)
     return np.ma.median(frames, axis=0).filled(0)
-    # return np.ma.median(np.ma.array(frames), axis=0).astype('uint8')
 
 
 def section_five(homography_mats, ):
@@ -446,20 +417,28 @@ def section_eight(homography_mats):
 
 
 def process(vc):
-    # frames = read_all_frames(vc)
+    frames = read_all_frames(vc)
     # main_frames = [frames[90], frames[270], frames[450], frames[630], frames[810]]
-    # homography_mats = find_all_homography_mats(frames)
+    homography_mats = find_all_homography_mats(frames)
     # save_file(homography_mats, "homography_mats.pckl")
-    # homography_mats = load_file("homography_mats.pckl")
+    homography_mats = load_file("homography_mats.pckl")
 
     # section_one(main_frames)
+    # print('1')
     # section_two(main_frames)
+    # print('2')
     # section_three(frames, homography_mats)
+    # print('3')
     section_four()
+    print('4')
     # section_five(homography_mats)
+    # print('5')
     # section_six()
+    # print('6')
     # section_seven(homography_mats)
+    # print('7')
     # section_eight(homography_mats)
+    # print('8')
 
 
 video_cap = cv2.VideoCapture('video.mp4')
