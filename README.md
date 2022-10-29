@@ -18,3 +18,12 @@ Instructor: Dr. Kamali Tabrizi
 * Epipolar Geometry
 * 3D Reconstruction
 * Scene Recognition Using KNN, BOW and SVM
+
+### HW04:
+* Face Detection using HOG
+
+### HW05:
+* Scene Recognition Using Deep Learning
+* Transfer Learning Using AlexNet
+
+
